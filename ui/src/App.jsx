@@ -27,18 +27,18 @@ function App() {
                         {/* Login route: If the user is authenticated, they will be redirected to the home page */}
                         <Route path="/login" element={isAuthenticated ? <Navigate to="/" /> : <Login />} />
 
-                        {/* Verify OTP route: If the user is authenticated, they will be redirected to the home page */}
-                        <Route path="/verify-otp" element={isAuthenticated ? <Navigate to="/" /> : <VerifyOtp />} />
+                        {/* Verify OTP route */}
+                        <Route path="/verify-otp" element={<VerifyOtp />} />
 
-                        {/* Forgot Password route: If the user is authenticated, they will be redirected to the home page */}
-                        <Route path="/forgot-password" element={isAuthenticated ? <Navigate to="/" /> : <ForgotPassword />} />
+                        {/* Forgot Password route */}
+                        <Route path="/forgot-password" element={<ForgotPassword />} />
 
-                        {/* Reset Password route: If the user is authenticated, they will be redirected to the home page */}
-                        <Route path="/reset-password" element={isAuthenticated ? <Navigate to="/" /> : <ResetPassword />} />
+                        {/* Reset Password route */}
+                        <Route path="/reset-password" element={<ResetPassword />} />
 
-                        {/* Protected Routes */}
-                        {/* Home route: If the user is authenticated, the home page will be rendered, otherwise redirected to login */}
-                        <Route path="/" element={isAuthenticated ? <Home /> : <Navigate to="/login" />} />
+                        {/* Default Routes */}
+                        {/* Home route */}
+                        <Route path="/" element={<Home />} />
                     </Routes>
                 </BrowserRouter>
             </div>
