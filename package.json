@@ -1,0 +1,10 @@
+{
+  "dependencies": {
+    "concurrently": "^9.1.0"
+  },
+  "scripts": {
+    "start:frontend": "cd ui && npm run dev",
+    "start:backend": "cd functions && npx nodemon",
+    "start": "concurrently \"npm run start:frontend\" \"npm run start:backend\""
+  }
+}
