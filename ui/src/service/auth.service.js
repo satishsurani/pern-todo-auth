@@ -1,6 +1,6 @@
 import store from '../redux/store'; // Import the Redux store to dispatch actions
 import axiosInstance from './url.service'; // Import the custom axios instance configured with base URL
-import { authFailure, authSuccess, logoutSuccess, verifyOtpSuccess } from '../redux/authSlice'; // Import Redux actions to handle auth state
+import { authFailure, authRequest, authSuccess, logoutSuccess, verifyOtpSuccess } from '../redux/authSlice'; // Import Redux actions to handle auth state
 
 const dispatch = store.dispatch; // Shortcut to dispatch actions in Redux
 
@@ -88,3 +88,17 @@ export const logout = async () => {
         throw error.response.data;
     }
 };
+
+//user-profile
+export const fetchUserProfile = async()=>{
+    dispatch(authRequest());
+    try {
+        const response = await axiosInstance.get(`/user/profile`)
+        console.log(response.data)
+        dispatch(authSuccess(response.data.data))
+        return response.data;
+    } catch (error) {
+        dispatch(authFailure(error.response.data))
+        throw error.response.data;
+    }
+}

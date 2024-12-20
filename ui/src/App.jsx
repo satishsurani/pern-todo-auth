@@ -9,6 +9,7 @@ import ForgotPassword from './components/LoginSection/Forgot-Password';  // Impo
 import ResetPassword from './components/LoginSection/Reset-Password';  // Importing ResetPassword component
 import Home from './components/HomePage/Home';  // Importing Home component for authenticated users
 import { useSelector } from 'react-redux';  // Importing useSelector to get authentication state from Redux store
+import SuccessLogin from './components/LoginSection/SuccessLogin';
 
 function App() {
     // Getting the `isAuthenticated` state from Redux to determine if the user is logged in
@@ -35,6 +36,7 @@ function App() {
 
                         {/* Reset Password route */}
                         <Route path="/reset-password" element={<ResetPassword />} />
+                        <Route path="/success-login" element={<SuccessLogin />} />
 
                         {/* Default Routes */}
                         {/* Home route */}

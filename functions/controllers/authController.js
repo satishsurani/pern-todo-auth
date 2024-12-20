@@ -207,11 +207,10 @@ const logout = (req, res) => {
 
 const getUserProfile = async (req, res) => {
     try {
-        const userId = req.params.userId;
-        if (!userId) return responde(res, 400, 'user id required');
+        const userId = req.user.userId;
         const user = await model.User.findOne({
             where: { id: userId },
-            attributes: ['id', 'name', 'email']
+            attributes: ['id', 'name', 'email', 'profileImage']
         });
 
         if (!user) return responde(res, 404, 'User not found');

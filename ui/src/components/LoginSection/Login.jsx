@@ -9,6 +9,7 @@ import { useNavigate } from 'react-router-dom'; // For navigation
 import { useDispatch, useSelector } from 'react-redux'; // Redux for state management
 import Loader from './../../utils/Loader'; // Loading spinner component
 import { authRequest, authSuccess } from '../../redux/authSlice'; // Redux actions for auth state
+import GoogleLogin from './GoogleLogin';
 
 const Login = () => {
   const [IsSignUp, setIsSignUp] = useState(false); // State to toggle between Sign Up and Sign In
@@ -88,8 +89,8 @@ const Login = () => {
   };
 
   return (
-    <div className='flex min-h-full justify-center px-6 py-12 lg:px-0 nt-32'>
-      <div className='flex flex-col justify-center w-full px-4 py-10 md:px-0 max-w-md space-y-6 shadow-lg rounded-l-lg'>
+    <div className='flex min-h-full justify-center px-6 py-12 lg:px-0 mt-10'>
+      <div className='flex flex-col justify-center w-full px-4 py-10 md:px-0 max-w-md space-y-6 rounded-l-lg'>
         <div className='sm:mx-auto sm:w-full sm:max-w-sm'>
           <img
             alt='your company logo'
@@ -177,7 +178,9 @@ const Login = () => {
               </button>
             </div>
           </form>
-
+            <div className='mt-4 '>
+              <GoogleLogin />
+            </div>
           {/* Sign-up/sign-in toggle */}
           <p className='mt-5 text-center text-sm text-gray-500'>
             {IsSignUp ? 'Already have an account?' : 'Don\'t have an account?'}{' '}
@@ -195,7 +198,7 @@ const Login = () => {
       {/* Image on the right for larger screens */}
       <div className='hidden md:flex md:items-center md:justify-center md:w-1/2'>
         <img
-          src="https://img.freepik.com/free-vector/mobile-login-concept-illustration_114360-83.jpg?t=st=1733650617~exp=1733654217~hmac=1d251757095209670f1626cd6e08aea2e030a40bb27177a79c0f6f8ccc8ea30b&w=940"
+          src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f"
           alt="Login_Img"
           className='object-cover w-3/4 h-full shadow-md rounded-r-lg'
         />

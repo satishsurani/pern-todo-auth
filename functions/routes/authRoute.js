@@ -53,6 +53,6 @@ router.get('/auth/logout', authController.logout);
  * @route GET /user/profile/:userId
  * @description Logout user and remove cookie
  */
-router.get('/user/profile/:userId',authMiddleware, authController.getUserProfile);
+router.get('/user/profile',authMiddleware, authController.getUserProfile);
 
 module.exports = router;

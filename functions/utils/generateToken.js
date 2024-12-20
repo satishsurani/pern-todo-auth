@@ -11,7 +11,7 @@ require('dotenv').config();
  */
 
 const generateToken = (user) => {
-    const secretKey = process.env.JWT_SECERET_KEY;
+    const secretKey = process.env.JWT_SECRET_KEY;
 
     // Check if the secret key is available
     if (!secretKey) {
