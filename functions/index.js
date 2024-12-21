@@ -5,6 +5,7 @@ const passport = require('passport');
 const { sequelize } = require('./models'); 
 const router = require('./routes/authRoute'); 
 const googleRoute = require('./routes/googleRoute'); 
+const todosRoute = require('./routes/todosRoute'); 
 require('dotenv').config();
 const cookieParser = require('cookie-parser');
 const app = express();
@@ -43,6 +44,7 @@ app.use(passport.session());
 // Routes
 app.use('/', router);
 app.use('/', googleRoute);
+app.use('/', todosRoute);
 
 /**
  * Connect to the database.

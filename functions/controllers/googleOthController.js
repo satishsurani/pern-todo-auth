@@ -15,6 +15,7 @@ passport.use(
         async (req, accessToken, refreshToken, profile, done) => {
             const id = generateUUID();
             const { emails, displayName, photos } = profile;
+            console.log(emails)
             try {
                 let user = await model.User.findOne({ where: { email: emails[0].value } });
                 if (user) {
@@ -29,7 +30,7 @@ passport.use(
                     name: displayName,
                     email: emails[0].value,
                     profileImage: photos[0]?.value,
-                    isverified: emails[0].isverified,
+                    isVerified: emails[0].verified,
                 });
                 return done(null, user); 
             } catch (error) {

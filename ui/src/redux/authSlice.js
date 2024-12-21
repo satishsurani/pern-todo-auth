@@ -1,15 +1,11 @@
 import { createSlice } from '@reduxjs/toolkit';
 import Cookies from 'universal-cookie';
-
-// Create an instance of Cookies to access the stored cookies.
-const cookies = new Cookies();
-// Retrieve the 'token' cookie from the browser's cookies (if any).
-const token = cookies.get('token');
+import { isTokenPresent } from './authToken';
 
 // Initial state of the authentication slice
 const initialState = {
     user: null,             // The 'user' property holds the authenticated user's data, initially null.
-    isAuthenticated: !!token, // 'isAuthenticated' will be true if the token exists (i.e., user is authenticated), otherwise false.
+    isAuthenticated: !!isTokenPresent, // 'isAuthenticated' will be true if the token exists (i.e., user is authenticated), otherwise false.
     loading: false,         // 'loading' state indicates whether authentication is in progress, initially false.
     isVerified: false,      // 'isVerified' indicates whether the user is verified, initially false.
     error: null,            // 'error' will hold any error message or details in case of a failed request.

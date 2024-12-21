@@ -1,15 +1,25 @@
 import React from 'react'
 import { useSelector } from 'react-redux' // Importing useSelector to access Redux state
 import Navbar from './Navbar' // Importing the Navbar component
+import { useNavigate } from 'react-router-dom'
 
 const Home = () => {
   // Accessing the 'user' from Redux store (auth state)
   const { user } = useSelector(state => state.auth)
+  const navigate = useNavigate()
+
+  const handleCreateTodo = () => {
+    navigate('/create-todos')
+  }
+
+  const handleTodoList = () => {
+    navigate('/todos-list')
+  }
 
   return (
     <div className='w-full'>
       {/* Navbar component, placed at the top of the page */}
-      <Navbar />
+      {/* <Navbar /> */}
       
       <div className='flex flex-col lg:flex-row items-center lg:justify-between bg-white py-16 px-8 lg:px-12'>
         {/* Left side: Welcome message and description */}
@@ -26,11 +36,11 @@ const Home = () => {
           {/* Button container for actions */}
           <div className='mt-6 flex justify-center lg:justify-start space-x-4'>
             {/* "Create Todos" button */}
-            <button className='px-4 bg-gray-900 text-gray-200 text-xs font-semibold rounded hover:bg-gray-700'>
+            <button onClick={handleCreateTodo} className='px-4 bg-gray-900 text-gray-200 text-xs font-semibold rounded hover:bg-gray-700'>
               Create Todos
             </button>
             {/* "List Todos" button */}
-            <button className='px-4 py-2 bg-gray-300 text-gray-900 text-xs font-semibold rounded hover:bg-gray-400'>
+            <button onClick={handleTodoList} className='px-4 py-2 bg-gray-300 text-gray-900 text-xs font-semibold rounded hover:bg-gray-400'>
               List Todos
             </button>
           </div>

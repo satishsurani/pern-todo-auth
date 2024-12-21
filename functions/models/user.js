@@ -17,6 +17,10 @@ module.exports = (sequelize, DataTypes) => {
     static associate(models) {
       // You can define relationships here (e.g., one-to-many, many-to-many)
       // Example: User.hasMany(models.Post)
+      User.hasMany(models.Todo, {
+        foreignKey: 'userId',
+        as: 'userTodos'
+      })
     }
   }
 
