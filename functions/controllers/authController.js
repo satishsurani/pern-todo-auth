@@ -1,14 +1,27 @@
-const { where, Model } = require('sequelize');
-const model = require('../models');
-const { generateUUID } = require('../utils/generateUUID');
-const { responde } = require('../utils/responseHandler');
-const bcrypt = require('bcrypt');
-const { sendOtpToEmail } = require('../service/emailProvider');
-const { generateToken } = require('../utils/generateToken');
-const validate = require('validator');
-const { RelationshipType } = require('sequelize/lib/errors/database/foreign-key-constraint-error');
+// Importing specific utilities from Sequelize
+const { where, Model } = require('sequelize'); // 'where' is used for querying specific conditions, and 'Model' serves as the base class for defining database models.
+
+// Importing the database models
+const model = require('../models'); // Represents all the database models defined in the application, such as the User model.
+
+// Importing utility functions
+const { generateUUID } = require('../utils/generateUUID'); // Function to generate universally unique identifiers (UUIDs).
+const { responde } = require('../utils/responseHandler'); // A utility function for sending standardized API responses.
+
+// Importing bcrypt for password hashing
+const bcrypt = require('bcrypt'); // Used to securely hash and compare passwords.
+
+// Importing email service
+const { sendOtpToEmail } = require('../service/emailProvider'); // Sends OTP emails to users for verification and password reset.
+
+// Importing JWT token generation utility
+const { generateToken } = require('../utils/generateToken'); // Generates JSON Web Tokens (JWT) for user authentication.
+
+// Importing input validation library
+const validate = require('validator'); // Used for validating input, such as checking email format.
 
 // Utility function to generate and save OTP
+// Generates a random 6-digit OTP, saves it to the user instance, and sets an expiration time (10 minutes).
 const generateAndSaveOTP = async (user) => {
     const verificationOTP = Math.floor(100000 + Math.random() * 900000).toString();
     user.verificationOTP = verificationOTP;
@@ -19,32 +32,33 @@ const generateAndSaveOTP = async (user) => {
 
 /**
  * Signup new user
- * - Validates email
- * - Checks if user already exists
- * - Creates user with hashed password and OTP
- * - Sends OTP to user's email
+ * Steps:
+ *  - Validates the provided email.
+ *  - Checks if a user with the given email already exists.
+ *  - Creates a new user with hashed password and generates an OTP.
+ *  - Sends the OTP to the user's email for verification.
  */
 const signup = async (req, res) => {
     try {
         const id = generateUUID();
         const { name, email, password } = req.body;
 
-        // Validate email
+        // Validate email format and domain
         if (!validate.isEmail(email) || !email.endsWith('@gmail.com')) {
             return responde(res, 400, 'Please enter a valid email address with @gmail.com');
         }
 
-        // Check if user already exists
+        // Check if a user with the given email already exists
         const existingUser = await model.User.findOne({ where: { email } });
         if (existingUser) {
-            return responde(res, 400, "User already exists. Please login.");
+            return responde(res, 400, 'User already exists. Please login.');
         }
 
-        // Hash password and generate OTP
+        // Hash the password and generate OTP
         const hashedPassword = await bcrypt.hash(password, 10);
         const verificationOTP = Math.floor(100000 + Math.random() * 900000).toString();
 
-        // Create new user
+        // Create a new user entry in the database
         const user = await model.User.create({
             id,
             name,
@@ -54,10 +68,10 @@ const signup = async (req, res) => {
             otpExpiresAt: Date.now() + 10 * 60 * 1000, // OTP expires in 10 minutes
         });
 
-        // Send OTP via email
+        // Send the OTP to the user's email
         await sendOtpToEmail(user.email, verificationOTP);
 
-        // Generate authentication token
+        // Generate an authentication token and set it as a cookie
         const token = generateToken(user);
         res.cookie('token', token, { maxAge: 3600000 });
 
@@ -75,19 +89,23 @@ const signup = async (req, res) => {
 
 /**
  * Verify OTP for email verification
+ * Steps:
+ *  - Verifies the provided OTP.
+ *  - Checks if the OTP has expired.
+ *  - Updates the user's verification status.
  */
 const verifyOtp = async (req, res) => {
     try {
         const { verificationOTP } = req.body;
 
-        // Find user by OTP
+        // Find the user by OTP
         const user = await model.User.findOne({ where: { verificationOTP } });
         if (!user) return responde(res, 400, 'Invalid OTP');
 
-        // Check OTP expiration
+        // Check if the OTP is expired
         if (user.otpExpiresAt < Date.now()) return responde(res, 400, 'OTP has expired');
 
-        // Mark user as verified
+        // Mark the user as verified and clear OTP fields
         user.verificationOTP = null;
         user.otpExpiresAt = null;
         user.isVerified = true;
@@ -107,21 +125,25 @@ const verifyOtp = async (req, res) => {
 
 /**
  * Sign in user with email and password
+ * Steps:
+ *  - Verifies user credentials.
+ *  - Ensures the user is verified.
+ *  - Generates and returns an authentication token.
  */
 const signin = async (req, res) => {
     try {
         const { email, password } = req.body;
 
-        // Find user by email
+        // Find the user by email
         const user = await model.User.findOne({ where: { email } });
         if (!user) return responde(res, 404, 'User not found');
         if (!user.isVerified) return responde(res, 400, 'User is not verified');
 
-        // Compare passwords
+        // Compare the provided password with the stored hashed password
         const isMatchPassword = await bcrypt.compare(password, user.password);
-        if (!isMatchPassword) return responde(res, 401, 'Invalid Credentials');
+        if (!isMatchPassword) return responde(res, 401, 'Invalid credentials');
 
-        // Generate token
+        // Generate an authentication token
         const token = generateToken(user);
         res.cookie('token', token, { maxAge: 3600000 });
 
@@ -139,19 +161,22 @@ const signin = async (req, res) => {
 
 /**
  * Forgot Password - Generates and sends OTP to user's email
+ * Steps:
+ *  - Checks if the email exists.
+ *  - Generates an OTP and sends it to the email.
  */
 const forgotPassword = async (req, res) => {
     try {
         const { email } = req.body;
- 
-        // Find user by email
+
+        // Find the user by email
         const user = await model.User.findOne({ where: { email } });
         if (!user) return responde(res, 400, 'User not found');
 
         // Generate and save OTP
         const verificationOTP = await generateAndSaveOTP(user);
 
-        // Send OTP via email
+        // Send the OTP to the user's email
         await sendOtpToEmail(user.email, verificationOTP);
 
         return responde(res, 200, 'OTP sent to your email. Please check for email verification.');
@@ -162,20 +187,24 @@ const forgotPassword = async (req, res) => {
 };
 
 /**
- * Reset Password - Validates OTP and updates user's password
+ * Reset Password - Validates OTP and updates the user's password
+ * Steps:
+ *  - Validates the provided OTP.
+ *  - Ensures the OTP is not expired.
+ *  - Hashes the new password and updates it in the database.
  */
 const resetPassword = async (req, res) => {
     try {
         const { verificationOTP, newPassword } = req.body;
 
-        // Find user by OTP
+        // Find the user by OTP
         const user = await model.User.findOne({ where: { verificationOTP } });
         if (!user) return responde(res, 400, 'Invalid OTP');
 
-        // Check OTP expiration
+        // Check if the OTP is expired
         if (user.otpExpiresAt < Date.now()) return responde(res, 400, 'OTP expired');
 
-        // Update password
+        // Hash and update the new password
         const hashedPassword = await bcrypt.hash(newPassword, 10);
         user.password = hashedPassword;
         user.verificationOTP = null;
@@ -190,35 +219,39 @@ const resetPassword = async (req, res) => {
 };
 
 /**
- * Logout - Logout User and remove cookie
+ * Logout - Logs out the user and removes the authentication cookie
  */
 const logout = (req, res) => {
     try {
-        // Clear the 'token' cookie by setting it to an empty string and an expiry date in the past
+        // Clear the authentication token cookie
         res.cookie('token', '', { expires: new Date(0) });
 
-        // Send a success response
         return responde(res, 200, 'Successfully logged out');
     } catch (error) {
         console.error('Error during logout:', error);
         return responde(res, 500, 'Something went wrong. Please try again.');
     }
-}
+};
 
+/**
+ * Get User Profile
+ * Steps:
+ *  - Retrieves the user's profile based on the authenticated user ID.
+ */
 const getUserProfile = async (req, res) => {
     try {
-        const userId = req.user.userId;
+        const userId = req.user.userId; // Extracted from the authentication middleware
         const user = await model.User.findOne({
             where: { id: userId },
             attributes: ['id', 'name', 'email', 'profileImage']
         });
 
         if (!user) return responde(res, 404, 'User not found');
-        return responde(res, 200, 'user profile get successfully', user);
+        return responde(res, 200, 'User profile retrieved successfully', user);
     } catch (error) {
         console.error('Error during getUserProfile:', error);
         return responde(res, 500, 'Something went wrong. Please try again.');
     }
-}
+};
 
 module.exports = { signup, verifyOtp, signin, forgotPassword, resetPassword, logout, getUserProfile };

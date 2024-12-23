@@ -9,15 +9,18 @@ import { useNavigate } from 'react-router-dom'; // For navigation
 import { useDispatch, useSelector } from 'react-redux'; // Redux for state management
 import Loader from './../../utils/Loader'; // Loading spinner component
 import { authRequest, authSuccess } from '../../redux/authSlice'; // Redux actions for auth state
-import GoogleLogin from './GoogleLogin';
+import GoogleLogin from './GoogleLogin'; // Google login component
 
 const Login = () => {
-  const [IsSignUp, setIsSignUp] = useState(false); // State to toggle between Sign Up and Sign In
-  const [showPassword, setshowPassword] = useState(false); // State to toggle password visibility
-  const { loading } = useSelector(state => state.auth); // Get loading state from Redux
+  // State to toggle between Sign Up and Sign In
+  const [IsSignUp, setIsSignUp] = useState(false);
+  // State to toggle password visibility
+  const [showPassword, setshowPassword] = useState(false);
+  // Get loading state from Redux store
+  const { loading } = useSelector(state => state.auth);
   const dispatch = useDispatch(); // Redux dispatch function
 
-  const navigate = useNavigate(); // Navigate hook for page redirection
+  const navigate = useNavigate(); // React Router's navigate function for page redirection
 
   // Sign In schema using yup for validation
   const signinSchema = yup.object().shape({
@@ -32,58 +35,58 @@ const Login = () => {
     password: yup.string().min(6, 'Password must be at least 6 characters').required('Password is required'),
   });
 
-  // useForm hook for form handling and validation
+  // useForm hook to handle form data and validation
   const {
     register,
     handleSubmit,
     reset,
     formState: { errors },
   } = useForm({
-    resolver: yupResolver(IsSignUp ? signupSchema : signinSchema), // Dynamic schema based on sign-up or sign-in mode
+    resolver: yupResolver(IsSignUp ? signupSchema : signinSchema), // Use dynamic schema based on mode
   });
 
-  // Toggle between sign-up and sign-in mode
+  // Function to toggle between Sign Up and Sign In mode
   const toggleSignUp = () => {
     setIsSignUp(!IsSignUp);
   };
 
-  // Toggle password visibility
+  // Function to toggle password visibility
   const togglePassword = () => {
     setshowPassword(!showPassword);
   };
 
-  // Form submission handler
+  // Form submission handler for both sign-up and sign-in
   const onSubmit = async (data) => {
-    dispatch(authRequest()); // Dispatch action to set loading state
+    dispatch(authRequest()); // Dispatch action to set loading state to true
     try {
       if (IsSignUp) {
-        // Handle sign up
-        const result = await signupUser(data);
+        // Handle Sign Up
+        const result = await signupUser(data); // Call signup service
         if (result.status === 'success') {
-          dispatch(authSuccess(result.data)); // On success, update auth state in Redux
+          dispatch(authSuccess(result.data)); // Update Redux state on success
           toast.success(result.message); // Show success message
-          navigate('/verify-otp'); // Navigate to verify-otp page
+          navigate('/verify-otp'); // Redirect to OTP verification page
         } else {
           toast.error(result.message); // Show error message
         }
       } else {
-        // Handle sign in
-        const result = await signinUser(data);
+        // Handle Sign In
+        const result = await signinUser(data); // Call signin service
         if (result.status === 'success') {
           toast.success(result.message); // Show success message
-          navigate('/'); // Navigate to home page
+          navigate('/'); // Redirect to home page after successful login
         } else {
-          toast.error(result.message || 'Login failed. Please check your email and password'); // Error message
+          toast.error(result.message || 'Login failed. Please check your email and password'); // Show error message
         }
       }
     } catch (error) {
-      toast.error('An unexpected error occurred'); // Catch unexpected errors
+      toast.error('An unexpected error occurred'); // Catch and show unexpected errors
     } finally {
       reset(); // Reset form fields after submission
     }
   };
 
-  // Navigate to the forgot password page
+  // Navigate to forgot password page
   const handleForgotPassword = () => {
     navigate('/forgot-password');
   };
@@ -94,10 +97,10 @@ const Login = () => {
         <div className='sm:mx-auto sm:w-full sm:max-w-sm'>
           <img
             alt='your company logo'
-            src='https://cdn-icons-png.flaticon.com/256/295/295128.png'
+            src='https://cdn-icons-png.flaticon.com/256/295/295128.png' // Logo
             className='mx-auto h-10 w-auto'
           />
-          <h2 className='nt-10 text-center font-bold text-2xl leading-9 tracking-tight text-grey-900'>
+          <h2 className='text-center font-bold text-2xl leading-9 tracking-tight text-grey-900'>
             {IsSignUp ? 'Create your account' : 'Sign in your account'}
           </h2>
         </div>
@@ -106,14 +109,14 @@ const Login = () => {
             {/* Sign-up fields (only shown when IsSignUp is true) */}
             {IsSignUp && (
               <div>
-                <label htmlFor="name" className='flex text-sm font-medium leading-6 text-grey-900'>Name</label>
+                <label htmlFor="name" className='text-sm font-medium leading-6 text-grey-900'>Name</label>
                 <div className='mt-2'>
                   <input
                     id='name'
                     name='name'
                     type='text'
                     {...register('name')}
-                    className='block w-full rounded-md border-0 py-1.5 px-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6'
+                    className='block w-full rounded-md py-1.5 px-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-indigo-600 sm:text-sm sm:leading-6'
                   />
                   {errors.name && <p className='text-red-600'>{errors.name.message}</p>}
                 </div>
@@ -122,14 +125,14 @@ const Login = () => {
 
             {/* Common Email field */}
             <div>
-              <label htmlFor="email" className='flex text-sm font-medium leading-6 text-grey-900'>Email</label>
+              <label htmlFor="email" className='text-sm font-medium leading-6 text-grey-900'>Email</label>
               <div className='mt-2'>
                 <input
                   id='email'
                   name='email' // Fixed typo 'eamil' to 'email'
                   type='email'
                   {...register('email')}
-                  className='block w-full rounded-md border-0 py-1.5 px-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6'
+                  className='block w-full rounded-md py-1.5 px-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-indigo-600 sm:text-sm sm:leading-6'
                 />
                 {errors.email && <p className='text-red-600'>{errors.email.message}</p>}
               </div>
@@ -137,20 +140,20 @@ const Login = () => {
 
             {/* Password field */}
             <div>
-              <label htmlFor="password" className='flex text-sm font-medium leading-6 text-grey-900'>Password</label>
+              <label htmlFor="password" className='text-sm font-medium leading-6 text-grey-900'>Password</label>
               <div className='mt-2 relative'>
                 <input
                   id='password'
                   name='password'
                   type={showPassword ? 'text' : 'password'}
                   {...register('password')}
-                  className='block w-full rounded-md border-0 py-1.5 px-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6'
+                  className='block w-full rounded-md py-1.5 px-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-indigo-600 sm:text-sm sm:leading-6'
                 />
                 <div
                   className='absolute inset-y-0 right-0 pr-3 flex items-center text-sm leading-5 cursor-pointer'
-                  onClick={togglePassword}
+                  onClick={togglePassword} // Toggle password visibility
                 >
-                  {showPassword ? <FaEyeSlash /> : <FaEye />}
+                  {showPassword ? <FaEyeSlash /> : <FaEye />} {/* Show eye icon based on visibility */}
                 </div>
                 {errors.password && <p className='text-red-600'>{errors.password.message}</p>}
               </div>
@@ -172,22 +175,25 @@ const Login = () => {
             <div>
               <button
                 type='submit'
-                className='flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600'
+                className='w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-400 focus-visible:outline-indigo-600'
               >
                 {loading ? <Loader /> : (IsSignUp ? 'Create Account' : 'Sign In')}
               </button>
             </div>
           </form>
-            <div className='mt-4 '>
-              <GoogleLogin />
-            </div>
+          
+          {/* Google login button */}
+          <div className='mt-4'>
+            <GoogleLogin />
+          </div>
+
           {/* Sign-up/sign-in toggle */}
           <p className='mt-5 text-center text-sm text-gray-500'>
             {IsSignUp ? 'Already have an account?' : 'Don\'t have an account?'}{' '}
             <button
               type='button'
-              onClick={toggleSignUp}
-              className='font-semibold leading-6 text-indigo-600 hover:text-indigo-400'
+              onClick={toggleSignUp} // Toggle between sign-up and sign-in
+              className='font-semibold text-indigo-600 hover:text-indigo-400'
             >
               {IsSignUp ? 'Sign In' : 'Create Account'}
             </button>

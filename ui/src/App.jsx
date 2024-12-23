@@ -9,70 +9,66 @@ import ForgotPassword from './components/LoginSection/Forgot-Password';  // Impo
 import ResetPassword from './components/LoginSection/Reset-Password';  // Importing ResetPassword component
 import Home from './components/HomePage/Home';  // Importing Home component for authenticated users
 import { useDispatch, useSelector } from 'react-redux';  // Importing useSelector to get authentication state from Redux store
-import SuccessLogin from './components/LoginSection/SuccessLogin';
-import Navbar from './components/HomePage/Navbar';
-import { ProtectedRoute } from './utils/ProtectedRoutes';
-import CreateTodo from './components/TodoSection/CreateTodo';
-import Todos from './components/TodoSection/Todos';
-import { isTokenPresent } from './redux/authToken';
-import { logoutSuccess } from './redux/authSlice';
+import SuccessLogin from './components/LoginSection/SuccessLogin';  // Importing SuccessLogin component after successful login
+import Navbar from './components/HomePage/Navbar';  // Importing Navbar component for navigation
+import { ProtectedRoute } from './utils/ProtectedRoutes';  // Importing ProtectedRoute to secure private routes
+import CreateTodo from './components/TodoSection/CreateTodo';  // Importing CreateTodo component
+import Todos from './components/TodoSection/Todos';  // Importing Todos component to list user todos
+import { isTokenPresent } from './redux/authToken';  // Function to check if the authentication token is present
+import { logoutSuccess } from './redux/authSlice';  // Importing Redux action for logging out the user
 
+// Main component that handles routing logic
 const AppConent = () => {
-    const location = useLocation();
-    // Getting the `isAuthenticated` state from Redux to determine if the user is logged in
-    const { isAuthenticated } = useSelector(state => state.auth);
-    const noNavbarPaths = ['/login', "/verify-otp", "/forgot-password", "/reset-password", "/success-login"]
-    const dispatch = useDispatch()
+    const location = useLocation();  // Getting current location/pathname from the router
+    const { isAuthenticated } = useSelector(state => state.auth);  // Getting the authentication state from Redux store
+    const noNavbarPaths = ['/login', "/verify-otp", "/forgot-password", "/reset-password", "/success-login"];  // List of paths where Navbar should not appear
+    const dispatch = useDispatch();  // Getting dispatch function to dispatch Redux actions
+
+    // Effect hook to check if token is present, and log out if not
     useEffect(() => {
         if (!isTokenPresent()) {
-            dispatch(logoutSuccess)
+            dispatch(logoutSuccess());  // Dispatch logout action if no token found
         }
-    }, [dispatch])
+    }, [dispatch]);
 
     return (
         <>
+            {/* Conditional Navbar display: Only show Navbar if the current path is not in `noNavbarPaths` */}
             {!noNavbarPaths.includes(location.pathname) && <Navbar />}
+
             <Routes>
                 {/* Public Routes */}
-                {/* Login route: If the user is authenticated, they will be redirected to the home page */}
+                {/* Login route: If the user is authenticated, redirect to home page, otherwise show login page */}
                 <Route path="/login" element={isAuthenticated ? <Navigate to="/" /> : <Login />} />
-
-                {/* Verify OTP route */}
-                <Route path="/verify-otp" element={<VerifyOtp />} />
-
-                {/* Forgot Password route */}
-                <Route path="/forgot-password" element={<ForgotPassword />} />
-
-                {/* Reset Password route */}
-                <Route path="/reset-password" element={<ResetPassword />} />
-                <Route path="/success-login" element={<SuccessLogin />} />
-
+                <Route path="/verify-otp" element={<VerifyOtp />} />  {/* OTP verification route */}
+                <Route path="/forgot-password" element={<ForgotPassword />} />  {/* Forgot password route */}
+                <Route path="/reset-password" element={<ResetPassword />} />  {/* Reset password route */}
+                <Route path="/success-login" element={<SuccessLogin />} />  {/* Success login route */}
+                
+                {/* Protected Routes */}
+                {/* CreateTodo and Todos are protected, only accessible if authenticated */}
                 <Route path="/create-todos" element={<ProtectedRoute><CreateTodo /></ProtectedRoute>} />
                 <Route path="/todos-list" element={<ProtectedRoute><Todos /></ProtectedRoute>} />
 
-                {/* Default Routes */}
-                {/* Home route */}
+                {/* Default Home Route */}
                 <Route path="/" element={<Home />} />
             </Routes>
         </>
-    )
-}
+    );
+};
 
+// Main App component to wrap everything with ToastContainer and Router
 function App() {
-
-
     return (
-        <>
-            <div>
-                {/* ToastContainer for displaying toast notifications */}
-                <ToastContainer position="top-center" />
-
-                {/* BrowserRouter component for routing */}
-                <BrowserRouter>
-                    <AppConent />
-                </BrowserRouter>
-            </div>
-        </>
+        <div>
+            {/* ToastContainer for showing toast notifications */}
+            <ToastContainer position="top-center" />
+            
+            {/* BrowserRouter handles the routing */}
+            <BrowserRouter>
+                <AppConent />  {/* Rendering the AppConent which contains all routes and logic */}
+            </BrowserRouter>
+        </div>
     );
 }
 

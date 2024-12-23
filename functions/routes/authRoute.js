@@ -50,7 +50,7 @@ router.get('/auth/logout', authController.logout);
 
 /**
  * Route for auth request
- * @route GET /user/profile/:userId
+ * @route GET /user/profile/
  * @description Logout user and remove cookie
  */
 router.get('/user/profile',authMiddleware, authController.getUserProfile);

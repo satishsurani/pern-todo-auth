@@ -89,15 +89,15 @@ export const logout = async () => {
     }
 };
 
-//user-profile
-export const fetchUserProfile = async()=>{
-    dispatch(authRequest());
+// User Profile
+export const fetchUserProfile = async () => {
+    dispatch(authRequest()); // Dispatching authRequest to indicate that a request is being made
     try {
-        const response = await axiosInstance.get(`/user/profile`)
-        dispatch(authSuccess(response.data.data))
-        return response.data;
+        const response = await axiosInstance.get(`/user/profile`); // Sending GET request to fetch user profile
+        dispatch(authSuccess(response.data.data)); // Dispatching authSuccess with the fetched user data
+        return response.data; // Return the user profile data
     } catch (error) {
-        dispatch(authFailure(error.response.data))
-        throw error.response.data;
+        dispatch(authFailure(error.response.data)); // Dispatching authFailure if an error occurs
+        throw error.response.data; // Throw the error data to be handled by the calling component
     }
 }
